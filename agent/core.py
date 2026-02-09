@@ -29,7 +29,8 @@ class LLMClient:
       "messages" : message,
       "max_tokens" : max_tokens,
       "tools": tool_manager.getSchema() ,
-      "tool_choice" : "auto"
+      "tool_choice" : "auto",
+      "stream":False
     }
 
     try: 
@@ -41,9 +42,12 @@ class LLMClient:
       response.raise_for_status()
       result = response.json()
 
+      choice = result['choices'][0]['message']
+
       return {
-          "content": response.choices[0].message.content,
-          "tool_calls": response.choices[0].message.tool_calls
+        "content": choice.get("content"),
+        "tool_calls": choice.get("tool_calls")
+
         }
     
     except Exception as e:

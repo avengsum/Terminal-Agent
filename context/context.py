@@ -48,7 +48,7 @@ INSTRUCTIONS:
 """
 
 class ContextManager:
-  def __init__(self,max_tokens=15000):
+  def __init__(self,max_tokens=3000):
     self.max_tokens = max_tokens
     self.model = "mistralai/devstral-2512:free"
     self.system_prompt = SYSTEM_PROMPT
@@ -78,23 +78,27 @@ class ContextManager:
       "content":content
     }
 
-    if role == "assistant" and tool_calls is not None:
-      message["tool_calls"] = tool_calls
+    if tool_calls: message["tool_calls"] = tool_calls
+    if tool_call_id: message["tool_call_id"] = tool_call_id
 
-    if role == "tool":
-      if tool_call_id is None:
-        raise ValueError("tool_call_id is required for tool messages")
-      message["tool_call_id"] = tool_call_id
-    
-    self.history.append(message)
+    # 1. Handle System Prompt (Always at Index 0)
+    if role == "system":
+      if self.history and self.history[0]["role"] == "system":
+          self.history[0] = message
+      else:
+        self.history.insert(0, message)
+    else:
+        self.history.append(message)
+
+        # 2. Aggressively Prune Old Messages
     self.manage_context()
 
   def manage_context(self):
 
     total = self.get_total_tokens()
 
-    if total > self.max_tokens:
-      print(f"⚠️ Context limit reached ({total}/{self.max_tokens}). Summarizing old messages...")
+    while total > self.max_tokens and len(self.history) > 5:
+      print(f"⚠️ Context limit reached ({self.get_total_tokens()}/{self.max_tokens}). Summarizing oldest messages...")
       self.summarize()
 
     ## before summerize
@@ -114,11 +118,12 @@ class ContextManager:
     #   print(f"DEBUG: Context Manager pruned an old message to save space.")
 
   def summarize(self):
-    if len(self.history) < 10:
+    msg_to_summerize = 6 
+    if len(self.history) < msg_to_summerize:
       return
     
     ## 1 to ignore system prompt
-    msgs_to_process = self.history[1:6]
+    msgs_to_process = self.history[1:msg_to_summerize+1]
 
     conversation_text = ""
 
@@ -134,13 +139,14 @@ class ContextManager:
     client = LLMClient()
 
     prompt = f"""
-        Summarize the following conversation snippet concisely. 
-        Preserve key facts, file names created, and current status.
-        
-        CONVERSATION:
-        {conversation_text}
-        
-        SUMMARY:
+        Summarize the following conversation snippet into ONE short paragraph (max 150 words).
+    Focus ONLY on:
+    1. Technical tasks completed.
+    2. Files created/modified.
+    3. The current goal.
+    
+    CONVERSATION:
+    {conversation_text}
         """
     try:
       response = client.chat([
@@ -148,26 +154,25 @@ class ContextManager:
         {"role":"user","content":prompt}
       ])
 
-      new_summary_text = response["content"]
-
-      ## remove 5 msg
-      del self.history[1:6]
-
-      summary_msg = {
-                "role": "system", 
-                "content": f"📝 [PREVIOUS CONVERSATION SUMMARY]: {new_summary_text}"
-            }
+      new_summary = response.get("content", "Summary failed") if isinstance(response, dict) else response.content
+        
+        # Delete the messages we summarized
+      del self.history[1:msg_to_summerize + 1]
+        
+        # Insert the tiny summary
+      summary_msg = {"role": "system", "content": f"📝 [OLD HISTORY]: {new_summary}"}
       self.history.insert(1, summary_msg)
-            
-      print(f"✅ Context Pruned. New Summary: {new_summary_text[:50]}...")
+        
+      print(f"✅ Context Pruned. New total: {self.get_total_tokens()}")
 
     except Exception as e:
-      print(f"❌ Summarization failed: {e}")
-            # Fallback: Just delete the oldest one to prevent crash
-      self.history.pop(1)
+        print(f"❌ Summarization failed: {e}")
+        self.history.pop(1) # Emergency pop to prevent infinite loop
   
   def get_messages(self):
-    return self.history
+        return self.history
+
+
 
 
 
