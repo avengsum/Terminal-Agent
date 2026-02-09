@@ -5,7 +5,8 @@ max_content_size = 200 * 1024
 
 avl_mode = ("overwrite","append")
 
-allowed_ext = (".txt",".md",".py",".json",".yaml",".yml",".js","java")
+allowed_ext = (".txt", ".md", ".py", ".json", ".yaml", ".yml", ".js", ".java", 
+               ".html", ".htm", ".css", ".jsx", ".tsx", ".ts", ".sql", ".sh")
 
 def writeFile(path:str,content:str,mode:str) -> str:
 

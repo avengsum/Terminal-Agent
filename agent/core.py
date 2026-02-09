@@ -20,7 +20,7 @@ class LLMClient:
     self.model = model
     self.base_url = base_url
     self.last_call_time = 0
-    self.min_interval = 6  ## 6 second bettwen call
+    self.min_interval = 8  ## 6 second bettwen call
 
   def _rate_limit(self):
       time_btw_last = time.time() - self.last_call_time
@@ -73,7 +73,9 @@ class LLMClient:
 
   
   def chat_stream(self, messages, max_tokens=2000):
+    
     self._rate_limit()
+
     headers = {
       "Authorization" : f"Bearer {self.api_key}",
       "Content-Type": "application/json"

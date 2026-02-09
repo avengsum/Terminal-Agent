@@ -27,7 +27,7 @@ def edit(path:str,search:str,replace:str) -> str:
     if not search:
      return "Error:search text not provided"
   
-    if os.getsize(path) > max_file_size:
+    if os.path.getsize(path) > max_file_size:
      return "Error: file is too large"
   
     ## read file and get the content
