@@ -73,7 +73,7 @@ INSTRUCTIONS:
 """
 
 class ContextManager:
-  def __init__(self,max_tokens=3000):
+  def __init__(self,max_tokens=10000):
     self.max_tokens = max_tokens
     self.model = "mistralai/devstral-2512:free"
     self.system_prompt = SYSTEM_PROMPT
@@ -185,7 +185,7 @@ class ContextManager:
       del self.history[1:msg_to_summerize + 1]
         
         # Insert the tiny summary
-      summary_msg = {"role": "system", "content": f"📝 [OLD HISTORY]: {new_summary}"}
+      summary_msg = {"role": "user", "content": f"📝 [OLD HISTORY]: {new_summary}"}
       self.history.insert(1, summary_msg)
         
       print(f"✅ Context Pruned. New total: {self.get_total_tokens()}")

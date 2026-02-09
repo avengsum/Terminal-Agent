@@ -1,3 +1,4 @@
+import time
 import json
 import os
 import requests
@@ -5,6 +6,7 @@ from tool.tool import tool_manager
 from dotenv import load_dotenv
 
 load_dotenv()
+
 
 class LLMClient:
   def __init__(
@@ -17,8 +19,23 @@ class LLMClient:
     self.api_key = api_key
     self.model = model
     self.base_url = base_url
+    self.last_call_time = 0
+    self.min_interval = 6  ## 6 second bettwen call
+
+  def _rate_limit(self):
+      time_btw_last = time.time() - self.last_call_time
+
+      if time_btw_last < self.min_interval:
+        wait_time = self.min_interval - time_btw_last
+
+        print(f"Rate limit wait for {wait_time} sec")
+
+        time.sleep(wait_time)
+
+      self.last_call_time = time.time()
 
   def chat(self, message, max_tokens=2000):
+    self._rate_limit()
     headers = {
       "Authorization" : f"Bearer {self.api_key}",
       "Content-Type": "application/json"
@@ -54,7 +71,9 @@ class LLMClient:
       print(f"Error calling OpenRouter: {e}")
       raise
 
+  
   def chat_stream(self, messages, max_tokens=2000):
+    self._rate_limit()
     headers = {
       "Authorization" : f"Bearer {self.api_key}",
       "Content-Type": "application/json"
