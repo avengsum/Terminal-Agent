@@ -1,5 +1,7 @@
+import asyncio
 import json
 import os
+import sys
 from agent.core import LLMClient
 from agent.task_manager import TaskManager
 from context import context
@@ -17,6 +19,7 @@ from utils.cmd_confirm import cmdConfirm
 from utils.compare import compare
 import time
 from dotenv import load_dotenv
+from tool.mcp_connector import mcp_connector
 
 load_dotenv()
 
@@ -408,7 +411,33 @@ def choose_mode():
       else:
         print("invalid choose between 1 or 2")
 
+
+def initialize_mcp():
+    print("\n[2] Initializing MCP Server...")
+    
+    # 1. Define path to tool/server.py
+    # This assumes main.py is in the root folder
+    server_path = os.path.join(os.getcwd(), "server.py")
+    
+    # 2. Check if file exists
+    if not os.path.exists(server_path):
+        print(f"❌ Error: File not found at {server_path}")
+        return
+
+    # 3. Start Connector
+    # We use sys.executable to ensure we use the same Python environment
+    success = mcp_connector.start(
+        command=sys.executable,
+        args=[server_path] 
+    )
+
+    if success:
+        tools = mcp_connector.list_tools()
+        print(f"   ✅ MCP Tools Loaded: {[t.name for t in tools]}")
+
+
 def main():
+  initialize_mcp()
   streaming = choose_mode()
 
   if streaming:

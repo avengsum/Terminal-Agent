@@ -1,4 +1,7 @@
+import asyncio
 import json
+
+from tool.mcp_connector import mcp_connector
 
 
 class ToolManager:
@@ -24,16 +27,22 @@ class ToolManager:
 
   
   def getSchema(self):
-    return self._schema
+    ## before mcp
+    # return self._schema
+    ## after 
+    all_schemas = self._schema.copy()
+    mcp_schemas = mcp_connector.get_tool_schemas()
+    all_schemas.extend(mcp_schemas)
+
+    return all_schemas
+
+    
   
   def run(self,tool_call):
     ## this will run the tool which is called by llm and return will be in string always
 
     name = tool_call["function"]["name"]
     agrument = tool_call["function"].get("arguments","")
-
-    if name not in self._tools:
-      return f"Error unkown tool {name}"
     
     try:
       args = json.loads(agrument) if agrument else {}
@@ -44,17 +53,31 @@ class ToolManager:
     except json.decoder.JSONDecodeError:
       return "Error: invalid json argument from llm"
     
-    try:
-      return self._tools[name](**args)
+    if name in self._tools:
     
-    except TypeError as e:
-      return f"Error: Tool arguments mismatch. {str(e)}"
+      try:
+        return self._tools[name](**args)
+    
+      except TypeError as e:
+        return f"Error: Tool arguments mismatch. {str(e)}"
+      
+      except Exception as e:
+        return f"Error: executing tool {name} {str(e)}"
+      
+
+      ## for mcp
+    else:
+        # Check if MCP handles it
+      result = mcp_connector.call_tool(name, args)
+      if result is not None:
+            return result
+        
+      return f"Error: Unknown tool '{name}'"
     
     ## ** used because llm give you this data {path : main.py }
     ## so direct ye pass karoge to error confirm h so ** isko main.py kar deta h simple
     
-    except Exception as e:
-      return f"Error: executing tool {name} {str(e)}"
+     
   
     
 
