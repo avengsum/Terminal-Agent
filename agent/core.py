@@ -41,7 +41,10 @@ class LLMClient:
       response.raise_for_status()
       result = response.json()
 
-      return result["choices"][0]["message"]
+      return {
+          "content": response.choices[0].message.content,
+          "tool_calls": response.choices[0].message.tool_calls
+        }
     
     except Exception as e:
       print(f"Error calling OpenRouter: {e}")
