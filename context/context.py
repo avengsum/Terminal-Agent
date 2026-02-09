@@ -43,6 +43,31 @@ INSTRUCTIONS:
 9. Before running code, mark the task as IN_PROGRESS.
 10. After success, mark the task as COMPLETED with verification.
 
+### CODE INTELLIGENCE WORKFLOW (Claude Code Level):
+11. **Before editing code:**
+    - Use 'get_project_info' to understand project structure
+    - Use 'index_project' to build codebase index (if not done)
+    - Use 'read_related_files' to get full context before editing
+    - Use 'find_function' or 'find_usages' to understand code relationships
+    - Check 'git_status' to see what's changed
+
+12. **When making changes:**
+    - Read related files first to understand dependencies
+    - Make changes across multiple files if needed
+    - Check 'git_diff' to review changes before committing
+    - Use 'git_add' and 'git_commit' with meaningful messages
+
+13. **For complex refactoring:**
+    - Use 'find_usages' to find all places a function is used
+    - Use 'read_function_context' to get complete function context
+    - Update all related files together
+    - Verify changes work before committing
+
+14. **Project understanding:**
+    - Use 'detect_project_type' to understand project structure
+    - Use 'get_dependencies' to see what packages are used
+    - Use 'find_entry_points' to find main files
+
 {task}
 
 """

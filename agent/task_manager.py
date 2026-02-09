@@ -17,10 +17,10 @@ class TaskManager:
         with open(state,"r") as f:
           self.tasks = json.load(f)
       except:
-        self.task = []
+        self.tasks = []
     
     else:
-      self.task = []
+      self.tasks= []
   
   def save_state(self):
     with open(state,"w") as f:
