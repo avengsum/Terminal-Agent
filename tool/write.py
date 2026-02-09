@@ -47,6 +47,16 @@ def writeFile(path:str,content:str,mode:str) -> str:
   
   # write function
 
+    parent_dict = os.path.dirname(path)
+
+    if parent_dict and not os.path.exists(parent_dict):
+      try:
+        os.makedirs(parent_dict)
+      
+      except Exception as e:
+        return f"Error creating directory: {str(e)}"
+
+
     with open(path,write_mode,encoding="utf-8",errors="replace") as f:
       f.write(content)
   
