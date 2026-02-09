@@ -436,13 +436,27 @@ def initialize_mcp():
         print(f"   ✅ MCP Tools Loaded: {[t.name for t in tools]}")
 
 
+
+
+def cleanup():
+    """Clean up task state on exit"""
+    print("\n Cleaning up...")
+    task.clear_state()
+
 def main():
-  initialize_mcp()
-  streaming = choose_mode()
+  try:
+    initialize_mcp()
+    streaming = choose_mode()
 
-  if streaming:
-    stream_Res()
-  else:
-    non_streaming()
+    if streaming:
+      stream_Res()
+    else:
+      non_streaming()
+  except KeyboardInterrupt:
+    print("\n\n user exit by (Ctrl+C)")
+  finally:
+    cleanup()
+    print("👋 Goodbye!\n")
 
-main()
+if __name__ == "__main__":
+    main()

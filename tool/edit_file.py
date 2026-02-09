@@ -1,4 +1,5 @@
 import os
+from config.workspace import is_safe_path
 
 max_file_size = 200 * 1024
 
@@ -8,6 +9,11 @@ def normalize_line(line):
 def edit(path:str,search:str,replace:str) -> str:
 
   try:
+
+    ## workspace safety check
+    is_safe, safety_message = is_safe_path(path)
+    if not is_safe:
+        return f"Error: {safety_message}"
 
     if not path or ".." in path:
      return "Error: Invalid file path"
@@ -21,7 +27,7 @@ def edit(path:str,search:str,replace:str) -> str:
     if not search:
      return "Error:search text not provided"
   
-    if os.path.getsize(path) > max_file_size:
+    if os.getsize(path) > max_file_size:
      return "Error: file is too large"
   
     ## read file and get the content

@@ -1,4 +1,5 @@
 import os
+from config.workspace import is_safe_path
 
 max_content_size = 200 * 1024
 
@@ -9,6 +10,11 @@ allowed_ext = (".txt",".md",".py",".json",".yaml",".yml",".js","java")
 def writeFile(path:str,content:str,mode:str) -> str:
 
   try:
+      ## workspace safety check
+    is_safe, safety_message = is_safe_path(path)
+    if not is_safe:
+      return f"Error: {safety_message}"
+      
       ## basic access control
 
     if not path or ".." in path:

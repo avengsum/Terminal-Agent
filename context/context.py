@@ -43,6 +43,12 @@ INSTRUCTIONS:
 9. Before running code, mark the task as IN_PROGRESS.
 10. After success, mark the task as COMPLETED with verification.
 
+### WORKSPACE ISOLATION (CRITICAL):
+11. **ALWAYS create new projects in the 'workspace/' directory**
+12. **NEVER modify files in: agent/, tool/, context/, utils/, config/, propmts/**
+13. These directories contain YOUR OWN CODE - modifying them will BREAK YOU!
+14. If user asks to modify agent code, politely explain the safety restriction.
+
 ### CODE INTELLIGENCE WORKFLOW (Claude Code Level):
 11. **Before editing code:**
     - Use 'get_project_info' to understand project structure

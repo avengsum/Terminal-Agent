@@ -62,6 +62,14 @@ class TaskManager:
         return f"Task {task_id} COMPLETED. Proof: {verification}"
     return f"Error: Task {task_id} not found"
   
+  def clear_state(self):
+    ## delete the task and start fresh
+    if os.path.exists(state):
+        os.remove(state)
+        print("Task state cleared")
+    self.tasks = []
+    self.current_phase = None
+  
   def get_task_prompt(self):
         """
         Creates a markdown representation of the state for the System Prompt.
