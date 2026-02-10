@@ -4,6 +4,7 @@ import os
 import sys
 from agent.core import LLMClient
 from agent.task_manager import TaskManager
+import config
 from context import context
 from tool import grep
 from tool.edit_file import edit
@@ -23,7 +24,7 @@ from tool.mcp_connector import mcp_connector
 
 load_dotenv()
 
-model = LLMClient(api_key=os.getenv("GROQ_API_KEY"),model="openai/gpt-oss-120b",base_url="https://api.groq.com/openai/v1")
+model = LLMClient(api_key=os.getenv("GOOGLE"),model="gemini-2.5-pro",base_url="https://generativelanguage.googleapis.com/v1beta")
 
 ctx = context.ContextManager()
 
@@ -411,6 +412,24 @@ def choose_mode():
       else:
         print("invalid choose between 1 or 2")
 
+def mode():
+   print("\nConfirmation Mode:")
+   print("1. Human-in-loop (ask for confirmation)")
+   print("2. Autonomous (AI decides everything)")
+
+   while True:
+     choice = input("\nEnter 1 or 2 (press Enter for default): ").strip()
+
+     if choice == "1":
+       print("Human in loop")
+       return True
+     
+     elif choice == "2":
+       print("AI will handle")
+       return False
+     
+     else:
+       print("invalid choice choice 1 or 2")
 
 def initialize_mcp():
     print("\n[2] Initializing MCP Server...")
@@ -446,6 +465,7 @@ def cleanup():
 def main():
   try:
     initialize_mcp()
+    config.HUMAN_IN_LOOP = mode()
     streaming = choose_mode()
 
     if streaming:

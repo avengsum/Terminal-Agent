@@ -1,5 +1,5 @@
 import os
-from config.workspace import is_safe_path
+from utils.workspace import is_safe_path
 
 max_file_size = 200 * 1024
 

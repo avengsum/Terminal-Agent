@@ -1,14 +1,23 @@
 import os
-from config.workspace import is_safe_path
+from utils.workspace import is_safe_path
 
 max_content_size = 200 * 1024
 
 avl_mode = ("overwrite","append")
 
 allowed_ext = (".txt", ".md", ".py", ".json", ".yaml", ".yml", ".js", ".java", 
-               ".html", ".htm", ".css", ".jsx", ".tsx", ".ts", ".sql", ".sh")
+               ".html", ".htm", ".css", ".jsx", ".tsx", ".ts", ".sql", ".sh",
+               ".env", ".gitignore", ".dockerignore", ".editorconfig") 
+
+allowed_files = (
+        "Dockerfile", "Makefile", "Procfile", ".gitignore", 
+        ".dockerignore", ".editorconfig", ".eslintrc", ".prettierrc"
+    )
 
 def writeFile(path:str,content:str,mode:str) -> str:
+
+  _, ext = os.path.splitext(path)
+  filename = os.path.basename(path)
 
   try:
       ## workspace safety check
@@ -20,6 +29,8 @@ def writeFile(path:str,content:str,mode:str) -> str:
 
     if not path or ".." in path:
       return "Error: Invalid path"
+    if ext not in allowed_ext and filename not in allowed_files:
+        return f"Error: file type not supported (extension: {ext or 'none'})"
   
     if not content:
       return "Error: not content provided"
