@@ -139,7 +139,7 @@ def stream_Res():
         
           elif isinstance(chunk, dict) and "tool_calls" in chunk:
             for tc_chunk in chunk["tool_calls"]:
-              index = tc_chunk["index"]
+              index = tc_chunk.get("index",0)
             
               # Initialize buffer for this index if not exists
               if index not in tool_calls_buffer:
@@ -153,7 +153,7 @@ def stream_Res():
               if "id" in tc_chunk:
                tool_calls_buffer[index]["id"] += tc_chunk["id"]
             
-               if "function" in tc_chunk:
+              if "function" in tc_chunk:
                 if "name" in tc_chunk["function"]:
                   tool_calls_buffer[index]["function"]["name"] += tc_chunk["function"]["name"]
                 if "arguments" in tc_chunk["function"]:
@@ -200,7 +200,13 @@ def stream_Res():
 
     ## specially for write tool because of confimation function
          tool_name = tool["function"]["name"]
-         args = json.loads(tool["function"]["arguments"] or "{}")
+         try:
+            args = json.loads(tool["function"]["arguments"].strip() or "{}")
+         except json.JSONDecodeError as e:
+            print(f"Failed to parse tool args: {e}")
+            ctx.add_message(role="tool", content=f"Error: Invalid JSON arguments - {e}", tool_call_id=tool["id"])
+            continue
+
 
          if tool_name == "write_file":
           path = args.get("path")
