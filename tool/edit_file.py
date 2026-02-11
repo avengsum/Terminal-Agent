@@ -1,5 +1,6 @@
 import os
 from utils.workspace import is_safe_path
+from agent.checkpoint import checkpoint_mgr
 
 max_file_size = 200 * 1024
 
@@ -9,6 +10,10 @@ def normalize_line(line):
 def edit(path:str,search:str,replace:str) -> str:
 
   try:
+    # checkpoint created
+    if os.path.exists(path):
+      checkpoint_mgr.create_checkpoint(path, f"Modified {path} via write_file")
+      print(f"🛡️  Checkpoint created for {path}")
 
     ## workspace safety check
     is_safe, safety_message = is_safe_path(path)

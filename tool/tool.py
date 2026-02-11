@@ -7,6 +7,7 @@ from tool.todo import add_todo, mark_done, update_status
 from tool.tool_manager import ToolManager
 from tool.list_file import list_files
 from tool.read import read_file
+from tool.undo import undo_action
 from tool.webFetch_tool import web_fetch
 from tool.webSearch_tool import webSearch
 from tool.write import writeFile
@@ -526,5 +527,16 @@ tool_manager.register(
         "required": ["file_paths"]
     },
     tool=read_multiple_files
+)
+
+tool_manager.register(
+    name="undo_last_action",
+    description="Revert the last file change. Use this if you broke the code and want to go back.",
+    parameters={
+        "type": "object",
+        "properties": {}, # No arguments needed
+        "required": []
+    },
+    tool=undo_action
 )
 

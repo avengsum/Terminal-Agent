@@ -1,5 +1,6 @@
 import os
 from utils.workspace import is_safe_path
+from agent.checkpoint import checkpoint_mgr
 
 max_content_size = 200 * 1024
 
@@ -24,6 +25,11 @@ def writeFile(path:str,content:str,mode:str) -> str:
     is_safe, safety_message = is_safe_path(path)
     if not is_safe:
       return f"Error: {safety_message}"
+    
+    # checkpoint created
+    if os.path.exists(path):
+        checkpoint_mgr.create_checkpoint(path, f"Modified {path} via write_file")
+        print(f"🛡️  Checkpoint created for {path}")
       
       ## basic access control
 
