@@ -539,4 +539,3 @@ tool_manager.register(
     },
     tool=undo_action
 )
-

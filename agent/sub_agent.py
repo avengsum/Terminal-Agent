@@ -60,7 +60,7 @@ class SubAgent:
         return f"Sub-Agent Crash: {str(e)}"
         
       self.ctx.add_message(
-        role="assitant",
+        role="assistant",
         content=content,
         tool_calls=tool_calls
       )

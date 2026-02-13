@@ -167,7 +167,7 @@ class ContextManager:
     
     from agent.core import LLMClient
 
-    client = LLMClient()
+    client = LLMClient(api_key=os.getenv("GOOGLE"),model="gemini-2.5-pro",base_url="https://generativelanguage.googleapis.com/v1beta")
 
     prompt = f"""
         Summarize the following conversation snippet into ONE short paragraph (max 150 words).
