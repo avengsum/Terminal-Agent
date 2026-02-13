@@ -21,6 +21,8 @@ from utils.compare import compare
 import time
 from dotenv import load_dotenv
 from tool.mcp_connector import mcp_connector
+from tui.tui import create_layout, draw_header, draw_status, draw_tasks, draw_conversation, draw_logs, draw_input, draw_help
+from rich.console import Console
 
 load_dotenv()
 
@@ -399,6 +401,20 @@ def stream_Res():
         break
 
     
+def run_tui():
+    """Runs the Text-based User Interface."""
+    console = Console()
+    layout = create_layout()
+    layout["header"].update(draw_header())
+    layout["status"].update(draw_status())
+    layout["tasks"].update(draw_tasks())
+    layout["conversation"].update(draw_conversation())
+    layout["logs"].update(draw_logs())
+    layout["input"].update(draw_input())
+    layout["help"].update(draw_help())
+
+    console.print(layout)
+
 def choose_mode():
     """Let user choose between streaming and non-streaming"""
     print("=" * 60)
@@ -407,16 +423,14 @@ def choose_mode():
     print("\nChoose response mode:")
     print("1. Non-Streaming (complete response at once)")
     print("2. Streaming (word-by-word, like ChatGPT)")
+    print("3. TUI Mode (Text-based User Interface)")
 
     while True:
-      choice = input("\nEnter 1 or 2").strip()
-
-      if choice == '1':
-        return False
-      elif choice == '2':
-        return True
-      else:
-        print("invalid choose between 1 or 2")
+        choice = input("Enter your choice (1, 2, or 3): ").strip()
+        if choice in ["1", "2", "3"]:
+            return choice
+        else:
+            print("Invalid choice. Please enter 1, 2, or 3.")
 
 def mode():
    print("\nConfirmation Mode:")
@@ -470,14 +484,18 @@ def cleanup():
 
 def main():
   try:
-    initialize_mcp()
-    config.HUMAN_IN_LOOP = mode()
-    streaming = choose_mode()
+    choice = choose_mode()
 
-    if streaming:
-      stream_Res()
+    if choice == "3":
+        run_tui()
     else:
-      non_streaming()
+        initialize_mcp()
+        config.HUMAN_IN_LOOP = mode()
+        if choice == "2":
+            stream_Res()
+        elif choice == "1":
+            non_streaming()
+
   except KeyboardInterrupt:
     print("\n\n user exit by (Ctrl+C)")
   finally:
